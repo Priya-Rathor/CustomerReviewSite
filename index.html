@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Review Data Cleaner</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .upload-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .upload-box {
+            border: 3px dashed #4facfe;
+            border-radius: 15px;
+            padding: 40px;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8f4ff 100%);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-box:hover {
+            border-color: #00f2fe;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(79, 172, 254, 0.2);
+        }
+
+        .upload-box.dragover {
+            border-color: #00f2fe;
+            background: linear-gradient(135deg, #e8f4ff 0%, #d0e8ff 100%);
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            color: #4facfe;
+            margin-bottom: 20px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(79, 172, 254, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .cleaning-options {
+            background: #f8f9ff;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .cleaning-options h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .option-group {
+            margin-bottom: 20px;
+        }
+
+        .option-group label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .option-group label:hover {
+            background: rgba(79, 172, 254, 0.1);
+        }
+
+        .option-group input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        .results-section {
+            margin-top: 40px;
+            display: none;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f8f9ff;
+        }
+
+        .log-section {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 2px 0;
+        }
+
+        .log-success { color: #68d391; }
+        .log-warning { color: #f6e05e; }
+        .log-error { color: #fc8181; }
+
+        .export-section {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+
+        .download-btn:hover {
+            box-shadow: 0 8px 20px rgba(72, 187, 120, 0.3);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧹 Customer Review Data Cleaner</h1>
+            <p>Clean, standardize, and prepare your Shopify review data for AI analysis</p>
+        </div>
+
+        <div class="content">
+            <div class="upload-section">
+                <div class="upload-box" id="uploadBox">
+                    <div class="upload-icon">📁</div>
+                    <h3>Drop your CSV file here or click to browse</h3>
+                    <p>Supports CSV files with customer review data</p>
+                    <input type="file" class="file-input" id="fileInput" accept=".csv" />
+                    <button class="btn" onclick="document.getElementById('fileInput').click()">Choose File</button>
+                </div>
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="cleaning-options" id="cleaningOptions" style="display: none;">
+                <h3>🔧 Cleaning Options</h3>
+                <div class="option-group">
+                    <label><input type="checkbox" id="standardizeTimestamps" checked> Standardize timestamps to ISO format</label>
+                    <label><input type="checkbox" id="fixCategories" checked> Fix inconsistent category names</label>
+                    <label><input type="checkbox" id="filterBlankReviews" checked> Filter out blank or invalid reviews</label>
+                    <label><input type="checkbox" id="normalizeRatings" checked> Normalize missing ratings</label>
+                    <label><input type="checkbox" id="cleanProductNames" checked> Clean product names</label>
+                    <label><input type="checkbox" id="standardizeCountries" checked> Standardize country names</label>
+                    <label><input type="checkbox" id="fixFulfillmentStatus" checked> Fix fulfillment status inconsistencies</label>
+                </div>
+                <button class="btn" id="cleanDataBtn" onclick="cleanData()">🧹 Clean Data</button>
+            </div>
+
+            <div class="stats-grid" id="statsGrid" style="display: none;">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalRecords">0</div>
+                    <div class="stat-label">Total Records</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="validRecords">0</div>
+                    <div class="stat-label">Valid Records</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="cleanedRecords">0</div>
+                    <div class="stat-label">Cleaned Records</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="issuesFixed">0</div>
+                    <div class="stat-label">Issues Fixed</div>
+                </div>
+            </div>
+
+            <div class="log-section" id="logSection" style="display: none;">
+                <div id="logContent"></div>
+            </div>
+
+            <div class="results-section" id="resultsSection">
+                <h3>📊 Cleaned Data Preview</h3>
+                <div class="table-container">
+                    <table id="resultsTable">
+                        <thead id="tableHeader"></thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+                <div class="export-section">
+                    <button class="btn download-btn" id="downloadBtn" onclick="downloadCleanedData()">
+                        📥 Download Cleaned Data
+                    </button>
+                    <button class="btn" id="copyToClipboard" onclick="copyToClipboard()">
+                        📋 Copy to Clipboard
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let originalData = [];
+        let cleanedData = [];
+        let issuesFixed = 0;
+
+        // File handling
+        const fileInput = document.getElementById('fileInput');
+        const uploadBox = document.getElementById('uploadBox');
+
+        fileInput.addEventListener('change', handleFile);
+        uploadBox.addEventListener('click', () => fileInput.click());
+        uploadBox.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadBox.classList.add('dragover');
+        });
+        uploadBox.addEventListener('dragleave', () => {
+            uploadBox.classList.remove('dragover');
+        });
+        uploadBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadBox.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile({ target: { files: files } });
+            }
+        });
+
+        function handleFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            log(`📁 Loading file: ${file.name}`, 'success');
+            showProgress(true);
+
+            Papa.parse(file, {
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    originalData = results.data;
+                    log(`✅ Loaded ${originalData.length} records`, 'success');
+                    showProgress(false);
+                    showCleaningOptions();
+                    updateStats();
+                },
+                error: function(error) {
+                    log(`❌ Error loading file: ${error.message}`, 'error');
+                    showProgress(false);
+                }
+            });
+        }
+
+        function showProgress(show) {
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.display = show ? 'block' : 'none';
+            if (show) {
+                const fill = document.getElementById('progressFill');
+                fill.style.width = '100%';
+            }
+        }
+
+        function showCleaningOptions() {
+            document.getElementById('cleaningOptions').style.display = 'block';
+            document.getElementById('cleaningOptions').classList.add('fade-in');
+        }
+
+        function log(message, type = 'info') {
+            const logSection = document.getElementById('logSection');
+            const logContent = document.getElementById('logContent');
+            
+            logSection.style.display = 'block';
+            
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContent.appendChild(entry);
+            logContent.scrollTop = logContent.scrollHeight;
+        }
+
+        function cleanData() {
+            log('🧹 Starting data cleaning process...', 'success');
+            cleanedData = JSON.parse(JSON.stringify(originalData));
+            issuesFixed = 0;
+
+            const options = {
+                standardizeTimestamps: document.getElementById('standardizeTimestamps').checked,
+                fixCategories: document.getElementById('fixCategories').checked,
+                filterBlankReviews: document.getElementById('filterBlankReviews').checked,
+                normalizeRatings: document.getElementById('normalizeRatings').checked,
+                cleanProductNames: document.getElementById('cleanProductNames').checked,
+                standardizeCountries: document.getElementById('standardizeCountries').checked,
+                fixFulfillmentStatus: document.getElementById('fixFulfillmentStatus').checked
+            };
+
+            if (options.standardizeTimestamps) {
+                standardizeTimestamps();
+            }
+
+            if (options.fixCategories) {
+                fixCategories();
+            }
+
+            if (options.cleanProductNames) {
+                cleanProductNames();
+            }
+
+            if (options.standardizeCountries) {
+                standardizeCountries();
+            }
+
+            if (options.fixFulfillmentStatus) {
+                fixFulfillmentStatus();
+            }
+
+            if (options.normalizeRatings) {
+                normalizeRatings();
+            }
+
+            if (options.filterBlankReviews) {
+                filterBlankReviews();
+            }
+
+            log(`✅ Data cleaning completed! Fixed ${issuesFixed} issues`, 'success');
+            showResults();
+            updateStats();
+        }
+
+        function standardizeTimestamps() {
+            log('📅 Standardizing timestamps...', 'info');
+            let fixed = 0;
+            
+            cleanedData.forEach(row => {
+                if (row.Timestamp) {
+                    try {
+                        const date = new Date(row.Timestamp);
+                        if (!isNaN(date.getTime())) {
+                            row.Timestamp = date.toISOString();
+                            fixed++;
+                        }
+                    } catch (e) {
+                        log(`⚠️ Invalid timestamp: ${row.Timestamp}`, 'warning');
+                    }
+                }
+            });
+            
+            log(`✅ Standardized ${fixed} timestamps`, 'success');
+            issuesFixed += fixed;
+        }
+
+        function fixCategories() {
+            log('🏷️ Fixing category names...', 'info');
+            let fixed = 0;
+            
+            const categoryMap = {
+                'PromDrsses': 'Prom Dresses',
+                'Cocktail Dreses': 'Cocktail Dresses',
+                'Delaye': 'Delayed',
+                'Fufilled': 'Fulfilled'
+            };
+
+            cleanedData.forEach(row => {
+                if (row['Product Category'] && categoryMap[row['Product Category']]) {
+                    row['Product Category'] = categoryMap[row['Product Category']];
+                    fixed++;
+                }
+            });
+            
+            log(`✅ Fixed ${fixed} category names`, 'success');
+            issuesFixed += fixed;
+        }
+
+        function cleanProductNames() {
+            log('🛍️ Cleaning product names...', 'info');
+            let fixed = 0;
+            
+            cleanedData.forEach(row => {
+                if (row['Product Name']) {
+                    // Remove special characters and standardize
+                    const cleaned = row['Product Name'].replace(/[^\w\s-]/g, '').trim();
+                    if (cleaned !== row['Product Name']) {
+                        row['Product Name'] = cleaned;
+                        fixed++;
+                    }
+                }
+            });
+            
+            log(`✅ Cleaned ${fixed} product names`, 'success');
+            issuesFixed += fixed;
+        }
+
+        function standardizeCountries() {
+            log('🌍 Standardizing country names...', 'info');
+            let fixed = 0;
+            
+            const countryMap = {
+                'USA': 'United States',
+                'US': 'United States',
+                'UK': 'United Kingdom',
+                'Deutschland': 'Germany'
+            };
+
+            cleanedData.forEach(row => {
+                if (row['Shipping Country'] && countryMap[row['Shipping Country']]) {
+                    row['Shipping Country'] = countryMap[row['Shipping Country']];
+                    fixed++;
+                }
+            });
+            
+            log(`✅ Standardized ${fixed} country names`, 'success');
+            issuesFixed += fixed;
+        }
+
+        function fixFulfillmentStatus() {
+            log('📦 Fixing fulfillment status...', 'info');
+            let fixed = 0;
+            
+            const statusMap = {
+                'Delaye': 'Delayed',
+                'Fufilled': 'Fulfilled',
+                'Cancelled': 'Cancelled',
+                'Returned': 'Returned'
+            };
+
+            cleanedData.forEach(row => {
+                if (row['Fulfillment Status'] && statusMap[row['Fulfillment Status']]) {
+                    row['Fulfillment Status'] = statusMap[row['Fulfillment Status']];
+                    fixed++;
+                }
+            });
+            
+            log(`✅ Fixed ${fixed} fulfillment statuses`, 'success');
+            issuesFixed += fixed;
+        }
+
+        function normalizeRatings() {
+            log('⭐ Normalizing ratings...', 'info');
+            let fixed = 0;
+            
+            cleanedData.forEach(row => {
+                if (!row.Rating || row.Rating === '') {
+                    row.Rating = 'Not Rated';
+                    row.Rating_Flag = 'Missing';
+                    fixed++;
+                } else if (row.Rating < 1 || row.Rating > 5) {
+                    row.Rating_Flag = 'Invalid';
+                    fixed++;
+                }
+            });
+            
+            log(`✅ Normalized ${fixed} ratings`, 'success');
+            issuesFixed += fixed;
+        }
+
+        function filterBlankReviews() {
+            log('🔍 Filtering blank reviews...', 'info');
+            const originalLength = cleanedData.length;
+            
+            cleanedData = cleanedData.filter(row => {
+                return row['Review Content'] && row['Review Content'].trim().length > 0;
+            });
+            
+            const removed = originalLength - cleanedData.length;
+            log(`✅ Removed ${removed} blank reviews`, 'success');
+            issuesFixed += removed;
+        }
+
+        function updateStats() {
+            document.getElementById('totalRecords').textContent = originalData.length;
+            document.getElementById('validRecords').textContent = cleanedData.length;
+            document.getElementById('cleanedRecords').textContent = cleanedData.length;
+            document.getElementById('issuesFixed').textContent = issuesFixed;
+            
+            document.getElementById('statsGrid').style.display = 'grid';
+            document.getElementById('statsGrid').classList.add('fade-in');
+        }
+
+        function showResults() {
+            const resultsSection = document.getElementById('resultsSection');
+            const tableHeader = document.getElementById('tableHeader');
+            const tableBody = document.getElementById('tableBody');
+            
+            resultsSection.style.display = 'block';
+            resultsSection.classList.add('fade-in');
+            
+            if (cleanedData.length === 0) return;
+            
+            // Create header
+            const headers = Object.keys(cleanedData[0]);
+            tableHeader.innerHTML = headers.map(h => `<th>${h}</th>`).join('');
+            
+            // Create body (show first 10 rows)
+            tableBody.innerHTML = cleanedData.slice(0, 10).map(row => 
+                `<tr>${headers.map(h => `<td>${row[h] || ''}</td>`).join('')}</tr>`
+            ).join('');
+        }
+
+        function downloadCleanedData() {
+            const csv = Papa.unparse(cleanedData);
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'cleaned_customer_reviews.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            log('📥 Downloaded cleaned data', 'success');
+        }
+
+        function copyToClipboard() {
+            const csv = Papa.unparse(cleanedData);
+            navigator.clipboard.writeText(csv).then(() => {
+                log('📋 Copied to clipboard', 'success');
+            }).catch(err => {
+                log('❌ Failed to copy to clipboard', 'error');
+            });
+        }
+    </script>
+</body>
+</html>

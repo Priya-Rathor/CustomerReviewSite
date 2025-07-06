@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Customer Review Assistant</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-indigo-50 to-blue-50 text-gray-900">
+
+  <div class="min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-3xl">
+      <div class="flex items-center justify-center mb-6">
+        <div class="bg-indigo-100 p-3 rounded-full mr-4">
+          <i class="fas fa-chart-bar text-indigo-600 text-2xl"></i>
+        </div>
+        <h1 class="text-3xl font-bold text-center text-indigo-700">Customer Review Assistant</h1>
+      </div>
+      
+      <div class="mb-6">
+        <label for="question" class="block text-sm font-medium mb-2 text-gray-700">
+          <i class="fas fa-question-circle mr-1 text-indigo-500"></i> Enter your question:
+        </label>
+        <textarea id="question" rows="4" class="w-full p-4 border-2 border-gray-200 rounded-lg shadow-sm focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-200 transition" placeholder="E.g., Which product categories have the most 1-star reviews in Canada?"></textarea>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div>
+          <label for="country" class="block text-sm font-medium mb-1 text-gray-700">
+            <i class="fas fa-globe mr-1 text-indigo-500"></i> Country
+          </label>
+          <select id="country" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-400">
+            <option value="">All Countries</option>
+            <option value="US">United States</option>
+            <option value="CA">Canada</option>
+            <option value="UK">United Kingdom</option>
+            <option value="AU">Australia</option>
+            <option value="DE">Germany</option>
+          </select>
+        </div>
+        
+        <div>
+          <label for="rating" class="block text-sm font-medium mb-1 text-gray-700">
+            <i class="fas fa-star mr-1 text-indigo-500"></i> Rating
+          </label>
+          <select id="rating" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-400">
+            <option value="">All Ratings</option>
+            <option value="1">1 Star</option>
+            <option value="2">2 Stars</option>
+            <option value="3">3 Stars</option>
+            <option value="4">4 Stars</option>
+            <option value="5">5 Stars</option>
+          </select>
+        </div>
+        
+        <div>
+          <label for="product" class="block text-sm font-medium mb-1 text-gray-700">
+            <i class="fas fa-box mr-1 text-indigo-500"></i> Product
+          </label>
+          <select id="product" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-400">
+            <option value="">All Products</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Clothing">Clothing</option>
+            <option value="Home">Home Goods</option>
+            <option value="Beauty">Beauty</option>
+            <option value="Books">Books</option>
+          </select>
+        </div>
+      </div>
+      
+      <button onclick="askQuestion()" class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-3 rounded-lg hover:from-indigo-700 hover:to-blue-700 transition shadow-md flex items-center justify-center">
+        <i class="fas fa-paper-plane mr-2"></i> Ask Question
+      </button>
+      
+      <div id="loading" class="mt-6 text-center hidden">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-600 mb-2"></div>
+        <p class="text-gray-600">Analyzing reviews...</p>
+      </div>
+      
+      <div id="answer" class="mt-6 p-6 bg-indigo-50 border border-indigo-100 rounded-lg text-gray-800 hidden transition-all duration-300">
+        <div class="flex items-start">
+          <div class="bg-white p-2 rounded-full mr-3 shadow-sm">
+            <i class="fas fa-robot text-indigo-600"></i>
+          </div>
+          <div class="flex-1">
+            <h3 class="font-semibold text-indigo-700 mb-2">Analysis Results</h3>
+            <div id="answer-content" class="whitespace-pre-line mb-4"></div>
+            
+            <!-- Follow-up Actions -->
+            <div id="follow-up" class="border-t border-indigo-200 pt-4 mt-4 hidden">
+              <h4 class="text-sm font-medium text-gray-700 mb-3">Follow-up Actions:</h4>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <button onclick="refineQuestion()" class="text-xs bg-white hover:bg-gray-50 text-indigo-600 border border-indigo-200 px-3 py-2 rounded-md transition flex items-center justify-center">
+                  <i class="fas fa-edit mr-1"></i> Refine
+                </button>
+                <button onclick="showDetails()" class="text-xs bg-white hover:bg-gray-50 text-indigo-600 border border-indigo-200 px-3 py-2 rounded-md transition flex items-center justify-center">
+                  <i class="fas fa-search-plus mr-1"></i> Details
+                </button>
+                <button onclick="copyAnswer()" class="text-xs bg-white hover:bg-gray-50 text-indigo-600 border border-indigo-200 px-3 py-2 rounded-md transition flex items-center justify-center">
+                  <i class="fas fa-copy mr-1"></i> Copy
+                </button>
+                <button onclick="exportAnswer()" class="text-xs bg-white hover:bg-gray-50 text-indigo-600 border border-indigo-200 px-3 py-2 rounded-md transition flex items-center justify-center">
+                  <i class="fas fa-download mr-1"></i> Export
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function askQuestion() {
+      const question = document.getElementById("question").value.trim();
+      const country = document.getElementById("country").value;
+      const rating = document.getElementById("rating").value;
+      const product = document.getElementById("product").value;
+      
+      const answerBox = document.getElementById("answer");
+      const answerContent = document.getElementById("answer-content");
+      const loading = document.getElementById("loading");
+      const followUp = document.getElementById("follow-up");
+      
+      if (!question) {
+        showAlert("Please enter a question.", "error");
+        return;
+      }
+
+      loading.classList.remove("hidden");
+      answerBox.classList.add("hidden");
+      followUp.classList.add("hidden");
+      answerContent.innerText = "";
+
+      try {
+        // Build query with filters
+        let fullQuery = question;
+        if (country || rating || product) {
+          fullQuery += "\n\nFilters:";
+          if (country) fullQuery += `\n- Country: ${document.getElementById("country").options[document.getElementById("country").selectedIndex].text}`;
+          if (rating) fullQuery += `\n- Rating: ${rating} star${rating > 1 ? 's' : ''}`;
+          if (product) fullQuery += `\n- Product: ${product}`;
+        }
+
+        // Simulate API call (replace with actual fetch)
+        const response = await simulateApiCall(fullQuery);
+        
+        answerContent.innerHTML = formatAnswer(response.answer);
+        answerBox.classList.remove("hidden");
+        followUp.classList.remove("hidden");
+      } catch (error) {
+        showAlert("Error communicating with the assistant. Please try again.", "error");
+      } finally {
+        loading.classList.add("hidden");
+      }
+    }
+    
+    function simulateApiCall(query) {
+      return new Promise((resolve) => {
+        // Simulate network delay
+        setTimeout(() => {
+          // This is a mock response - replace with actual API call
+          const mockResponses = [
+            "Based on analysis of recent reviews, electronics products in Canada have the highest number of 1-star ratings (23%), primarily due to shipping delays and compatibility issues.\n\nWould you like me to provide more detailed breakdown or suggest improvements?",
+            "Our data shows that beauty products have the most consistent 5-star ratings across all regions, with an average satisfaction rate of 89%.\n\nKey positive mentions include 'long-lasting' (42% of reviews) and 'great value' (31% of reviews).",
+            "Clothing items in the UK show a polarized rating distribution, with 35% 5-star reviews praising quality but 20% 1-star reviews citing sizing inconsistencies.\n\nThe most common complaint was 'runs small' mentioned in 68% of negative reviews."
+          ];
+          
+          const randomResponse = mockResponses[Math.floor(Math.random() * mockResponses.length)];
+          
+          resolve({
+            answer: randomResponse
+          });
+        }, 1500);
+      });
+    }
+    
+    function formatAnswer(text) {
+      // Simple formatting - you could enhance this further
+      return text
+        .replace(/\n\n/g, '<br><br>')
+        .replace(/\b(\d+%)\b/g, '<span class="font-bold text-indigo-600">$1</span>')
+        .replace(/\b(\d+-star)\b/gi, '<span class="font-bold text-yellow-600">$1</span>')
+        .replace(/\b(Key positive mentions)\b/gi, '<span class="font-bold text-green-600">$1</span>')
+        .replace(/\b(most common complaint)\b/gi, '<span class="font-bold text-red-600">$1</span>');
+    }
+    
+    function showAlert(message, type) {
+      const alertDiv = document.createElement('div');
+      alertDiv.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg text-white ${
+        type === 'error' ? 'bg-red-500' : 'bg-green-500'
+      }`;
+      alertDiv.innerHTML = `
+        <div class="flex items-center">
+          <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'} mr-2"></i>
+          <span>${message}</span>
+        </div>
+      `;
+      document.body.appendChild(alertDiv);
+      
+      setTimeout(() => {
+        alertDiv.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+        setTimeout(() => alertDiv.remove(), 300);
+      }, 3000);
+    }
+    
+    // Follow-up action functions
+    function refineQuestion() {
+      showAlert("Preparing to refine your question...", "success");
+      // In a real implementation, this might focus the question input
+      document.getElementById("question").focus();
+    }
+    
+    function showDetails() {
+      showAlert("Fetching more detailed analysis...", "success");
+      // This would trigger a more detailed API request
+    }
+    
+    function copyAnswer() {
+      const answerText = document.getElementById("answer-content").innerText;
+      navigator.clipboard.writeText(answerText)
+        .then(() => showAlert("Answer copied to clipboard!", "success"))
+        .catch(() => showAlert("Failed to copy text", "error"));
+    }
+    
+    function exportAnswer() {
+      showAlert("Export feature coming soon!", "success");
+      // This would generate a PDF/CSV export in a real implementation
+    }
+  </script>
+</body>
+</html>
