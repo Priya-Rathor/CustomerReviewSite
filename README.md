@@ -1,137 +1,137 @@
 # 🧠 Customer Review Insight Assistant
 
-This project is an **AI-powered system** that analyzes customer review data from e-commerce platforms. It uses Python for data cleaning and preprocessing, GPT-4 for intelligent insights, FastAPI for backend services, and a responsive TailwindCSS frontend to interact with the AI assistant.
+This project is an **AI-powered customer review analysis tool** that cleans, processes, and transforms raw e-commerce reviews into actionable insights. It combines **data cleaning**, **exploratory analysis**, **FastAPI backend**, **GPT-4 analysis**, and a **responsive frontend** built with Tailwind CSS.
 
 ---
 
-## 🚀 Key Features
+## 📊 Features
 
-- ✅ **Data Cleaning & Validation**: Handles missing values, fixes typos, standardizes categories and timestamps.
-- 📊 **Data Exploration & Visualization**: Plots ratings, categories, fulfillment status, and monthly review trends.
-- 🤖 **AI-Powered Q&A**: GPT-4 answers business questions about customer reviews with context-aware responses.
-- 🌐 **FastAPI Backend**: Efficient, production-ready API to serve questions and return GPT answers.
-- 💡 **Interactive Frontend**: User-friendly interface built with Tailwind CSS to query insights using filters.
+- 🧹 **Automated Data Cleaning** (Ratings, Categories, Timestamps, Fulfillment Status)
+- 📈 **Visual Analysis** using Matplotlib and Seaborn
+- 🧠 **Natural Language Question Answering** via GPT-4 API
+- 🖼️ **Sentiment Scoring** using TextBlob
+- ⚙️ **FastAPI Backend** to serve insights
+- 🌐 **Interactive Frontend UI** (TailwindCSS + JavaScript)
+- 📝 Filters for country, rating, and product category
+- 📤 Clean dataset ready for ML/LLM input
 
 ---
 
-## 📁 Project Structure
+## 🛠️ Tech Stack
 
+| Component      | Technology                         |
+|----------------|-------------------------------------|
+| Backend        | Python, FastAPI, OpenAI API         |
+| Data Cleaning  | Pandas, NumPy, Matplotlib, Seaborn  |
+| Sentiment      | TextBlob                            |
+| Frontend       | HTML, Tailwind CSS, Vanilla JS      |
+| API Integration| Axios-like fetch logic (Mocked / Real) |
+| AI Model       | GPT-4 via OpenAI API                |
+| Deployment     | Localhost / Deployable via Render/Vercel |
 
-.
-├── cleaned_customer_reviews.csv   # Final cleaned dataset
-├── app.py                         # FastAPI backend with OpenAI integration
-├── index.html                     # Frontend (HTML + TailwindCSS + JS)
-├── customer_cleaning_analysis.ipynb # Jupyter notebook for EDA, cleaning, and visualization
-├── .env                           # Stores OpenAI API key (not shared)
-└── README.md                      # Project documentation
-🔍 Data Workflow
-Raw Input: sample_customer.csv with reviews, ratings, timestamps, etc.
+---
 
-Cleaning:
+## 🚀 How It Works
 
-Fixes categories (e.g., 'Cocktail Dreses' → 'Cocktail Dresses')
+### 1. 🔍 Data Cleaning & Exploration
+- Handled typos in `Product Category` and `Fulfillment Status`
+- Imputed missing `Rating` and `Order Value` fields
+- Filtered out low-quality or empty reviews
+- Created a high-quality dataset (`cleaned_customer_reviews.csv`)
+- Performed EDA: ratings, product distribution, trends
 
-Corrects fulfillment typos (e.g., 'Delaye' → 'Delayed')
+### 2. 🧠 AI Integration via FastAPI
+- Users ask questions like:
+  > “Which category has the most 1-star reviews in Canada?”
+- GPT-4 processes a contextual sample of the cleaned dataset and returns a structured answer.
+- Sentiment scores are also calculated using TextBlob.
 
-Fills missing values (rating, order value)
+### 3. 🌐 Frontend Web App
+- Clean, responsive UI built with TailwindCSS
+- Input fields for question, product, country, and rating filters
+- Simulated GPT answers (replaceable with actual backend integration)
+- Actions: refine question, show details, copy/export result
 
-Flags empty or very short reviews
+---
 
-Visualization:
+## 🖼️ Screenshots
 
-Ratings distribution
+### 🔎 Ask Insights
+![screenshot1](docs/screenshot-question.png)
 
-Product category trends
+### 📊 Sample Insights
+![screenshot2](docs/screenshot-answer.png)
 
-Fulfillment status breakdown (pie chart)
+---
 
-Monthly review activity
+## 🗂️ Project Structure
 
-Export:
+```
 
-Final clean dataset saved as cleaned_customer_reviews.csv
+project/
+├── app.py                       # FastAPI backend (AI Q\&A API)
+├── index.html                   # Tailwind CSS UI
+├── cleaned\_customer\_reviews.csv # Final clean dataset
+├── sample\_customer.csv          # Raw sample data
+├── analysis.ipynb               # Full data cleaning + visualization
+├── .env                         # OpenAI API key
 
-🤖 AI Assistant Overview
-The backend uses GPT-4 to answer questions like:
+````
 
-“Which product category has the most 1-star reviews in Canada?”
+---
 
-It extracts a sample of cleaned data and sends it with your question to OpenAI.
+## 🧪 Sample Questions
 
-The AI replies with bullet points, trends, or summaries.
+Try asking:
+- *"Which product categories have the most returns?"*
+- *"Average order value for 5-star reviews in the US?"*
+- *"Trends in delayed orders over months?"*
 
-You can query by country, product, or rating from the frontend.
+---
 
-🌐 Frontend Demo
-Built using HTML, TailwindCSS, and FontAwesome icons.
+## ⚙️ Setup Instructions
 
-Features:
-Input custom questions
+1. **Clone the repo**
+```bash
+git clone https://github.com/yourname/customer-review-assistant.git
+cd customer-review-assistant
+````
 
-Filter by:
+2. **Install backend dependencies**
 
-📍 Country
-
-⭐ Rating
-
-📦 Product Category
-
-Get structured GPT responses
-
-Follow-up options: Refine, Copy, Export (coming soon)
-
-⚠️ Currently simulates API responses — you can connect to /ask endpoint in production.
-
-🔧 Setup Instructions
-1. Clone the Repo
-bash
-Copy
-Edit
-git clone https://github.com/your-username/review-insight-assistant.git
-cd review-insight-assistant
-2. Create .env File
-env
-Copy
-Edit
-OPENAI_API_KEY=your_openai_key_here
-3. Install Dependencies
-bash
-Copy
-Edit
+```bash
 pip install -r requirements.txt
-4. Run FastAPI Server
-bash
-Copy
-Edit
+```
+
+3. **Add OpenAI API key**
+
+```bash
+echo OPENAI_API_KEY=your_key_here > .env
+```
+
+4. **Run FastAPI backend**
+
+```bash
 uvicorn app:app --reload
-5. Open index.html
-Open index.html in your browser and interact with the assistant.
+```
 
-📊 Sample Summary Stats
-Metric	Value
-Total Reviews	72
-Avg Rating	2.81
-Top Category	Prom Dresses
-Avg Order Value	$287.64
-Fulfillment Issues	Delayed, Cancelled
+5. **Open `index.html` in browser**
 
-🛠️ Technologies Used
-Python, Pandas, Matplotlib, Seaborn — Data Cleaning & EDA
+> For full integration, replace mock responses in `simulateApiCall()` with a real `fetch("/ask", ...)` call.
 
-FastAPI, OpenAI GPT-4, TextBlob — Backend AI logic
+---
 
-TailwindCSS, JavaScript, HTML — Frontend UI
+## ✅ Final Summary
 
-.env, CORS, dotenv — Environment management
+| Metric                    | Value    |
+| ------------------------- | -------- |
+| Total Original Reviews    | 100      |
+| Cleaned High-Quality Data | 72       |
+| Avg Rating                | 2.81     |
+| Avg Order Value           | \$287.64 |
+| Categories Standardized   | 6        |
+| Sentiment Analysis Ready  | ✅        |
+| LLM Analysis Ready        | ✅        |
 
-📌 Future Enhancements
-Add PDF/CSV Export in frontend
-
-Connect live GPT-4 model via OpenAI API
-
-Add LangChain/LLM agents for advanced insights
-
-Store chat logs and insights in MongoDB
-
-Sentiment-based recommendations
+---
 
