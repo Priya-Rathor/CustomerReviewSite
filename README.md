@@ -16,7 +16,7 @@ This project is an **AI-powered system** that analyzes customer review data from
 
 ## 📁 Project Structure
 
-```text
+
 .
 ├── cleaned_customer_reviews.csv   # Final cleaned dataset
 ├── app.py                         # FastAPI backend with OpenAI integration
